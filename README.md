@@ -34,3 +34,4 @@ Path: D:\Drupal_Dev\drupal11_vps01_lam_acc\docker_volume_app\git_root\web\module
   <li>Patch Gavias code to respect translation if needed.</li>
   <li>Clear the log once finished debugging.</li>
 </ul>
+![bm_debug_form_trace_example](https://github.com/user-attachments/assets/bb8a7fe9-ebf9-443b-bf2a-ec59deea52cd)
