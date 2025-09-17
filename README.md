@@ -19,9 +19,7 @@ Path: D:\Drupal_Dev\drupal11_vps01_lam_acc\docker_volume_app\git_root\web\module
   with forms and imports (e.g. Gavias Page Builder).
 </p>
 
-## currently using it to fix
-
-### Steps
+## Usage
   * Enable tracing in the module settings page. `admin/bluemarloc/BM Debug Form Trace`
   * switch to the page with the form, refresh and enter
   * switch back and view the form id information
@@ -29,10 +27,12 @@ Path: D:\Drupal_Dev\drupal11_vps01_lam_acc\docker_volume_app\git_root\web\module
   * Example *Perform a Gavias import while editing a translated node.*
   * Check that the log shows the correct form ID, submit handlers, and language context.
 
-<h2>todo</h2>
+# issue todo
 <ul>
   <li>Patch Gavias code to respect translation if needed.</li>
   <li>Clear the log once finished debugging.</li>
 </ul>
+
+## Example output
 
 ![bm_debug_form_trace_example](https://github.com/user-attachments/assets/bb8a7fe9-ebf9-443b-bf2a-ec59deea52cd)
