@@ -1,0 +1,7 @@
+bm_debug_form_trace.settings:
+  path: '/admin/bm-debug-form-trace/settings'
+  defaults:
+    _form: '\Drupal\bm_debug_form_trace\Form\SettingsForm'
+    _title: 'BM Debug Form Trace'
+  requirements:
+    _permission: 'administer site configuration'
