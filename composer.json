@@ -2,7 +2,6 @@
     "name": "bluemarloc/bm_debug_form_trace",
     "description": "Debug utility to trace form builds/submits and AJAX requests in Drupal (e.g., Gavias import).",
     "type": "drupal-custom-module",
-    "version": "1.0.0",
     "license": "proprietary",
     "authors": [
         {
