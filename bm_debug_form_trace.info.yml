@@ -1,5 +1,8 @@
-name: bm_debug_form_trace
+name: Debug Form Trace Module - bm_debug_form_trace
 type: module
 description: Logs form builds/validates/submits for debugging (e.g. Gavias import).
 core_version_requirement: ^10 || ^11
-package: Blue Marloc
+package: Mondial-IT
+dependencies:
+  - drupal:help
+  - bm_main:bm_main
