@@ -74,22 +74,31 @@ function _bm_debug_form_trace_file(string $line): void {
   } catch (\Throwable $e) {}
 }
 function bm_debug_form_trace_help($route_name, \Drupal\Core\Routing\RouteMatchInterface $route_match) {
-  switch ($route_name) {
-    case 'help.page.bm_debug_form_trace':
-      $output = '<h2>' . t('Overview') . '</h2>';
-      $output .= '<p>' . t('The BM Debug Form Trace module provides developers and site builders with detailed logging of form builds, validations, submits, and raw AJAX/controller requests. It is especially useful when diagnosing modules that bypass normal form translation handling (such as certain page builders).') . '</p>';
+  if ($route_name === 'help.page.bm_debug_form_trace') {
+    $output = '<h2>' . t('Mondial-IT Debug Form Trace') . '</h2>';
+    $output .= '<p>' . t('Logs form builds, validate handlers, submit handlers, and raw AJAX/controller calls to help debug complex builders such as Gavias imports.') . '</p>';
 
-      $output .= '<h2>' . t('Features') . '</h2>';
-      $output .= '<ul>';
-      $output .= '<li>' . t('Logs all form IDs being built.') . '</li>';
-      $output .= '<li>' . t('Adds hooks to log submit and validate handlers.') . '</li>';
-      $output .= '<li>' . t('Captures non-Form API AJAX requests and their controllers.') . '</li>';
-      $output .= '<li>' . t('Provides an admin settings page with session-based enable/disable, log preview, refresh and clear buttons.') . '</li>';
-      $output .= '</ul>';
+    $output .= '<h3>' . t('Menus') . '</h3><ul>';
+    $output .= '<li>' . t('<strong>Trace Form usage</strong> — Blue Marloc » Development entry that opens the tracing controls.') . '</li>';
+    $output .= '</ul>';
 
-      $output .= '<h2>' . t('When to use') . '</h2>';
-      $output .= '<p>' . t('Enable this module during debugging sessions to trace the lifecycle of form submissions or AJAX calls. Keep it disabled during normal operation for performance and to avoid excessive logging.') . '</p>';
+    $output .= '<h3>' . t('URIs') . '</h3><ul>';
+    $output .= '<li>' . t('<code>@uri</code> (<code>@route</code>) — Enable/disable tracing for the current user session and inspect the log file.', [
+      '@uri' => '/admin/bm-debug-form-trace/settings',
+      '@route' => 'bm_debug_form_trace.settings',
+    ]) . '</li>';
+    $output .= '</ul>';
 
-      return $output;
+    $output .= '<h3>' . t('Features') . '</h3><ul>';
+    $output .= '<li>' . t('Logs form IDs, classes, paths, AJAX state, and language.') . '</li>';
+    $output .= '<li>' . t('Hooks into validate/submit steps for targeted forms (e.g., Gavias builders).') . '</li>';
+    $output .= '<li>' . t('Writes to both Drupal logs and <code>public://bm_debug_form_trace.log</code> for download.') . '</li>';
+    $output .= '</ul>';
+
+    $output .= '<h3>' . t('Usage tips') . '</h3>';
+    $output .= '<p>' . t('Enable tracing only while debugging to avoid noisy logs. AJAX requests are automatically annotated so you can correlate build/validate/submit sequences.') . '</p>';
+
+    return $output;
   }
+  return '';
 }

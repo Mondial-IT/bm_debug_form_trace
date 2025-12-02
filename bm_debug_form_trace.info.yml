@@ -1,6 +1,6 @@
-name: Debug Form Trace Module - bm_debug_form_trace
+name: Mondial-IT Debug Form Trace Module - bm_debug_form_trace
 type: module
-description: Logs form builds/validates/submits for debugging (e.g. Gavias import).
+description: Logs form calls to builds/validates/submits for debugging (e.g. Gavias import).
 core_version_requirement: ^10 || ^11
 package: Mondial-IT
 dependencies:
