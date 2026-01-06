@@ -1,0 +1,20 @@
+---
+label: 'Tracing Gavias Page Builder imports'
+related:
+- bm_debug_form_trace.overview
+- bm_main.overview
+---
+
+<h2>Steps</h2>
+<ol>
+  <li>Enable tracing in the module settings page.</li>
+  <li>Run <code>tail -f sites/default/files/bm_debug_form_trace.log</code> to watch logs live.</li>
+  <li>Perform a Gavias import while editing a translated node.</li>
+  <li>Check that the log shows the correct form ID, submit handlers, and language context.</li>
+</ol>
+
+<h2>Next</h2>
+<ul>
+  <li>Patch Gavias code to respect translation if needed.</li>
+  <li>Clear the log once finished debugging.</li>
+</ul>

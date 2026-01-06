@@ -1,0 +1,6 @@
+bm_debug_form_trace.settings:
+  title: 'Trace Form usage'
+  description: 'Trace Form/API requests for debugging (e.g., Gavias import).'
+  route_name: bm_debug_form_trace.settings
+  parent:  bm_main.bluemarloc_developer
+  weight: 50

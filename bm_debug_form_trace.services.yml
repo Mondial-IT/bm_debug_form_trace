@@ -1,0 +1,11 @@
+services:
+  bm_debug_form_trace.request_logger:
+    class: Drupal\bm_debug_form_trace\RequestLogger
+    arguments:
+      ['@logger.channel.bm_debug_form_trace', '@file_system', '@current_route_match', '@request_stack', '@tempstore.private']
+    tags:
+      - { name: event_subscriber }
+
+  logger.channel.bm_debug_form_trace:
+    parent: logger.channel_base
+    arguments: ['bm_debug_form_trace']

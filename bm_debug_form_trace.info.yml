@@ -1,0 +1,8 @@
+name: Mondial-IT Debug Form Trace
+type: module
+description: Logs Form-calls to build_form/validate_form/submit_form for debugging (especially ajax calls)
+core_version_requirement: ^10 || ^11
+package: Mondial-IT
+dependencies:
+  - drupal:help
+  - bm_main:bm_main

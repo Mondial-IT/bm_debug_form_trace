@@ -1,0 +1,104 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Is tracing enabled for the current user session?
+ */
+function bm_debug_form_trace_is_enabled(): bool {
+  try {
+    $store = \Drupal::service('tempstore.private')->get('bm_debug_form_trace');
+    return (bool) ($store->get('enabled') ?? FALSE);
+  } catch (\Throwable $e) {
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function bm_debug_form_trace_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  if (!bm_debug_form_trace_is_enabled()) {
+    return;
+  }
+  $req = \Drupal::request();
+  $obj = $form_state->getFormObject();
+  $class = is_object($obj) ? get_class($obj) : 'N/A';
+  $path = $req->getRequestUri();
+  $is_ajax = $req->isXmlHttpRequest() ? 'yes' : 'no';
+  $lang = \Drupal::languageManager()->getCurrentLanguage()->getId();
+
+  \Drupal::logger('bm_debug_form_trace')->notice(
+    'BUILD form_id=@id class=@class path=@path ajax=@ajax lang=@lang',
+    ['@id' => $form_id, '@class' => $class, '@path' => $path, '@ajax' => $is_ajax, '@lang' => $lang]
+  );
+  _bm_debug_form_trace_file("BUILD $form_id | $class | $path | ajax:$is_ajax | lang:$lang");
+
+  if (preg_match('/gavias|gpb|import/i', $form_id)) {
+    $form['#validate'][] = 'bm_debug_form_trace_validate_tap';
+    $form['#submit'][]   = 'bm_debug_form_trace_submit_tap';
+  }
+}
+
+function bm_debug_form_trace_validate_tap(array &$form, FormStateInterface $form_state) {
+  if (!bm_debug_form_trace_is_enabled()) return;
+  $form_id = $form_state->getBuildInfo()['form_id'] ?? 'N/A';
+  $keys = implode(',', array_keys($form_state->getValues()));
+  \Drupal::logger('bm_debug_form_trace')->notice('VALIDATE form_id=@id keys=@keys', [
+    '@id' => $form_id, '@keys' => $keys,
+  ]);
+  _bm_debug_form_trace_file("VALIDATE $form_id | keys: $keys");
+}
+
+function bm_debug_form_trace_submit_tap(array &$form, FormStateInterface $form_state) {
+  if (!bm_debug_form_trace_is_enabled()) return;
+  $form_id = $form_state->getBuildInfo()['form_id'] ?? 'N/A';
+  $path = \Drupal::request()->getRequestUri();
+  $keys = implode(',', array_keys($form_state->getValues()));
+  \Drupal::logger('bm_debug_form_trace')->notice('SUBMIT form_id=@id path=@path keys=@keys', [
+    '@id' => $form_id, '@path' => $path, '@keys' => $keys,
+  ]);
+  _bm_debug_form_trace_file("SUBMIT $form_id | $path | keys: $keys");
+}
+
+/**
+ * Append to public log file.
+ */
+function _bm_debug_form_trace_file(string $line): void {
+  try {
+    $fs = \Drupal::service('file_system');
+    $uri = 'public://bm_debug_form_trace.log';
+    $real = $fs->realpath($uri);
+    $stamp = date('c');
+    file_put_contents($real, "[$stamp] $line\n", FILE_APPEND);
+  } catch (\Throwable $e) {}
+}
+function bm_debug_form_trace_help($route_name, \Drupal\Core\Routing\RouteMatchInterface $route_match) {
+  if ($route_name === 'help.page.bm_debug_form_trace') {
+    $output = '<h2>' . t('Mondial-IT Debug Form Trace') . '</h2>';
+    $output .= '<p>' . t('Logs form builds, validate handlers, submit handlers, and raw AJAX/controller calls to help debug complex builders such as Gavias imports.') . '</p>';
+
+    $output .= '<h3>' . t('Menus') . '</h3><ul>';
+    $output .= '<li>' . t('<strong>Trace Form usage</strong> — Blue Marloc » Development entry that opens the tracing controls.') . '</li>';
+    $output .= '</ul>';
+
+    $output .= '<h3>' . t('URIs') . '</h3><ul>';
+    $output .= '<li>' . t('<code>@uri</code> (<code>@route</code>) — Enable/disable tracing for the current user session and inspect the log file.', [
+      '@uri' => '/admin/bm-debug-form-trace/settings',
+      '@route' => 'bm_debug_form_trace.settings',
+    ]) . '</li>';
+    $output .= '</ul>';
+
+    $output .= '<h3>' . t('Features') . '</h3><ul>';
+    $output .= '<li>' . t('Logs form IDs, classes, paths, AJAX state, and language.') . '</li>';
+    $output .= '<li>' . t('Hooks into validate/submit steps for targeted forms (e.g., Gavias builders).') . '</li>';
+    $output .= '<li>' . t('Writes to both Drupal logs and <code>public://bm_debug_form_trace.log</code> for download.') . '</li>';
+    $output .= '</ul>';
+
+    $output .= '<h3>' . t('Usage tips') . '</h3>';
+    $output .= '<p>' . t('Enable tracing only while debugging to avoid noisy logs. AJAX requests are automatically annotated so you can correlate build/validate/submit sequences.') . '</p>';
+
+    return $output;
+  }
+  return '';
+}
