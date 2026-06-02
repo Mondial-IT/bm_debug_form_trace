@@ -1,38 +1,55 @@
 #!/usr/bin/env bash
-# Goal: integrate origin while keeping LOCAL content on conflicts, handle unrelated histories, then push.
 set -euo pipefail
 
-# --- Configuration ---
+SCRIPT_NAME="update_and_push_to_github.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+SEARCH_DIR="$SCRIPT_DIR"
+SCRIPTS_ROOT=""
+while [[ "$SEARCH_DIR" != "/" ]]; do
+  CANDIDATE="$SEARCH_DIR/.scripts"
+  if [[ -f "$CANDIDATE/push-to-github.sh" && -f "$CANDIDATE/resolve_dir_paths.sh" && -f "$CANDIDATE/source_bm_colors.sh" ]]; then
+    SCRIPTS_ROOT="$CANDIDATE"
+    break
+  fi
+  SEARCH_DIR="$(dirname "$SEARCH_DIR")"
+done
+
+if [[ -z "$SCRIPTS_ROOT" ]]; then
+  echo "Error: Unable to locate canonical .scripts helpers from ${SCRIPT_DIR}" >&2
+  exit 1
+fi
+
+source "$SCRIPTS_ROOT/source_bm_colors.sh"
+source "$SCRIPTS_ROOT/resolve_dir_paths.sh"
+
 URL="https://github.com/Mondial-IT/bm_debug_form_trace.git"
 DIR="bm_debug_form_trace"
 BRANCH="main"
 
-#--------
+MODE="update"
+COMMIT_MESSAGE=""
+case "${1:-}" in
+  --status|-S|status|display)
+    MODE="status"
+    shift
+    ;;
+  --message|-m)
+    shift
+    COMMIT_MESSAGE="${*:-}"
+    set --
+    ;;
+  *)
+    COMMIT_MESSAGE="${*:-}"
+    set --
+    ;;
+esac
 
-
-# Safely capture the first argument ($1) as the commit message.
-# Use ${1:-} which expands to the value of $1 if set, or an empty string otherwise.     
-# This prevents the 'unbound variable' error from 'set -u'.
-COMMIT_MESSAGE="${1:-}"
-
-# Require we're somewhere under .../git_root/...
-if [[ "$PWD" != *"/git_root/"* ]]; then
-  echo "Error: not under /git_root/ (PWD=$PWD)" >&2
-  exit 1
+SCRIPT="$SCRIPTS_ROOT/push-to-github.sh"
+if [[ "$MODE" == "status" ]]; then
+  echo -e "$Blue - Displaying git status for ${DIR} via ${SCRIPT}$NC"
+  exec bash "$SCRIPT"     --url "$URL"     --dir "$DIR"     --branch "$BRANCH"     --worktree "$SCRIPT_DIR"     --status
 fi
 
-# Compute the absolute /git_root prefix from PWD.
-ROOT="${PWD%%/git_root/*}/git_root"
-SCRIPT="${ROOT}/.scripts/push-to-github.sh"
-
-# Shift the positional arguments once to remove the commit message ($1)
-# so that only other potential arguments remain in "$@".
-shift || true
-
-# Call the central script, passing the message explicitly and any remaining args.       
-exec bash "$SCRIPT" \
-  --url "$URL" \
-  --dir "$DIR" \
-  --branch "$BRANCH" \
-  --message "$COMMIT_MESSAGE" \
-  "$@"
+echo -e "$Blue - Running ${SCRIPT_NAME} for ${DIR} via ${SCRIPT}$NC"
+exec bash "$SCRIPT"   --url "$URL"   --dir "$DIR"   --branch "$BRANCH"   --worktree "$SCRIPT_DIR"   --message "$COMMIT_MESSAGE"
